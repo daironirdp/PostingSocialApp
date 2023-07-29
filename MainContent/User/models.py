@@ -3,11 +3,12 @@ from django.db import models
 # Create your models here.
 
 import uuid
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
-from MainContent.abstractions.models import AbstractManager, AbstractModel
 
+from MainContent.abstractions.models import AbstractManager, AbstractModel
 
 class UserManager(BaseUserManager, AbstractManager):
 
@@ -60,6 +61,8 @@ class User(AbstractModel, AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
+    posts_liked = models.ManyToManyField('mainContent_post.Post', related_name="liked_by")
+    posts_disliked = models.ManyToManyField('mainContent_post.Post', related_name="disliked_by") 
 
     USERNAME_FIELD = 'email'
 
@@ -74,3 +77,27 @@ class User(AbstractModel, AbstractBaseUser, PermissionsMixin):
     @property
     def name(self):
         return f"{self.first_name} {self.last_name}"
+
+    def like(self, post):       
+        """Like `post` if it hasn't been done yet"""       
+        return self.posts_liked.add(post)
+
+    def dislike(self, post):       
+        """Dislike `post` if it hasn't been done yet"""       
+        return self.posts_disliked.add(post)
+    
+    def remove_like(self, post):           
+        """Remove a like from a `post`"""       
+        return self.posts_liked.remove(post)
+    
+    def remove_dislike(self, post):
+        """ Remove a dislike from a 'post' """
+        return self.posts_disliked.remove(post)
+    
+    def has_liked(self, post):       
+        """Return True if the user has liked a `post`; else False"""       
+        return self.posts_liked.filter(pk=post.pk).exists()
+
+    def has_disliked(self, post):
+        """Return True if the user has disliked a 'post' """
+        return self.posts_disliked.filter(pk=post.pk).exists()

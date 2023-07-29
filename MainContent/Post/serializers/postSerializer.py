@@ -1,6 +1,6 @@
 from rest_framework import serializers 
 from rest_framework.exceptions import ValidationError
-
+from rest_framework.fields import CurrentUserDefault
 
 from django.core.validators import FileExtensionValidator, MaxValueValidator
 
@@ -32,7 +32,11 @@ class PostSerializer(AbstractSerializer):
                         validators=[FileExtensionValidator(allowed_extensions=['mp4', 'mkv', 'mpg','avi']), SizeValidator(50000000)]), 
                         write_only=True, required=False)
 
-   
+    liked = serializers.SerializerMethodField()   
+    likes_count = serializers.SerializerMethodField()
+
+    disliked = serializers.SerializerMethodField()
+    dislikes_count = serializers.SerializerMethodField()
             
     def validate_author(self, value):               
         # value has the value of the post you want to create
@@ -82,19 +86,44 @@ class PostSerializer(AbstractSerializer):
 
         return post
 
-    def update(self, instance, validated_data):       
-        print(instance)
+    def update(self, instance, validated_data):
         """Rewritting the update functionality to allow us to change the edited value """    
     
         if not instance.edited:           
             validated_data['edited'] = True
         instance = super().update(instance, validated_data)
         return instance 
+
+
+    def get_liked(self, instance):
+        
+        request = self.context.get('request', None)
+    
+        if request is None or request.user.is_anonymous:           
+            return False
+        return request.user.has_liked(instance)
+
+    def get_disliked(self, instance):
+        
+        request = self.context.get('request', None)
+    
+        if request is None or request.user.is_anonymous:           
+            return False
+        return request.user.has_disliked(instance)
+    
+    
+    def get_likes_count(self, instance):       
+        return instance.liked_by.count()
+
+    def get_dislikes_count(self, instance):       
+        return instance.disliked_by.count()
+
+    
         
     class Meta:       
         model = Post       
         # List of all the fields that can be included in a       
         # request or a response       
         fields = ['id', 'title','author', 'body', 'images','videos',
-         'edited', 'created', 'updated', 'uploaded_videos', 'uploaded_images']       
+        'edited', 'created', 'updated', 'uploaded_videos', 'uploaded_images', 'liked', 'likes_count','disliked', 'dislikes_count',]       
         read_only_fields = ["edited"]
