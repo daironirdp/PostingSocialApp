@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'MainContent',
     'MainContent.User',
     'MainContent.Auth',
-    'MainContent.Post'
+    'MainContent.Post',
+    'MainContent.Comment',
 ]
 
 MIDDLEWARE = [

@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-from MainContent.routers import router
+from MainContent.routers import urls
 from CoreApp import settings
 
 from django.conf.urls.static import static
@@ -24,6 +24,6 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    path('api/', include((router.urls, 'MainContent'))),
+    path('api/', include((urls, 'MainContent'))),
 ]
 urlpatterns += static(settings.MEDIA_URL,document_root = settings.MEDIA_ROOT)
