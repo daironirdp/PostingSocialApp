@@ -55,14 +55,14 @@ class User(AbstractModel, AbstractBaseUser, PermissionsMixin):
     username = models.CharField(db_index=True, max_length=255, unique=True)
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
-    #bio = models.CharField(max_length=255)
-    # avatar = models.CharField(max_length=255)
+    bio = models.CharField(max_length=255, null=True, blank=True)
+    avatar = models.ImageField(upload_to="User/avatar/", default="default_avatar.jpg")
     email = models.EmailField(db_index=True, unique=True)
     is_active = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-    posts_liked = models.ManyToManyField('mainContent_post.Post', related_name="liked_by")
-    posts_disliked = models.ManyToManyField('mainContent_post.Post', related_name="disliked_by") 
+    posts_liked = models.ManyToManyField('mainContent_post.Post', related_name="liked_by", null=True, blank=True)
+    posts_disliked = models.ManyToManyField('mainContent_post.Post', related_name="disliked_by", null=True, blank=True) 
 
     USERNAME_FIELD = 'email'
 
@@ -78,6 +78,9 @@ class User(AbstractModel, AbstractBaseUser, PermissionsMixin):
     def name(self):
         return f"{self.first_name} {self.last_name}"
 
+    def setAvatar(self, avatar):
+        pass
+    
     def like(self, post):       
         """Like `post` if it hasn't been done yet"""       
         return self.posts_liked.add(post)

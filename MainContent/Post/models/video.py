@@ -4,7 +4,7 @@ from django.db import models
 from MainContent.Post.models.attachment import Attachment
 
 class Video_Post(Attachment):
-    attachment = models.ImageField(upload_to="Post/attachments/images/")
+    attachment = models.ImageField(upload_to="Post/attachments/videos/")
 
     def __str__(self):
         return f'{self.attachment.name}'
